@@ -1,7 +1,16 @@
+const bodyParser = require('body-parser');
 const express = require('express');
+
 const app = express();
 
+app.use(bodyParser.json());
+
 app.get('/status', (req, res) => {
+  res.status(204).send('');
+});
+
+app.post('/send-welcome', (req, res) => {
+  console.log(req.body);
   res.status(204).send('');
 });
 
