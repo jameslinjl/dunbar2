@@ -1,5 +1,6 @@
 const bodyParser = require('body-parser');
 const express = require('express');
+const twilioIntegration = require('./twilioIntegration');
 
 const app = express();
 
@@ -10,7 +11,13 @@ app.get('/status', (req, res) => {
 });
 
 app.post('/send-welcome', (req, res) => {
-  console.log(req.body);
+  const body = req.body;
+
+  twilioIntegration.sendWelcome(
+    body['your full name'][0],
+    body['your phone number (no spaces)'][0]
+  );
+
   res.status(204).send('');
 });
 
