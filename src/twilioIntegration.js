@@ -1,7 +1,8 @@
 const _ = require('lodash');
 
-const accountSid = 'ACb1a14bf1d511f52d6d6383b3ac74f7cd';
-const authToken = '095093f7cd526b1d5803e67d6e3d2c8f';
+const accountSid = process.env.TWILIO_ACCOUNT_SID; 
+const authToken = process.env.TWILIO_AUTH_TOKEN;
+const twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER;
 const twilioClient = require('twilio')(accountSid, authToken);
 
 async function sendMessage(body, from, to) {
@@ -30,7 +31,7 @@ const sendWelcome = (name, phoneNumber) => {
     'Over time, we will offer a few more surprises, but for now … that’s it!',
   ];
 
-  sendMessages(messages, '+16105491632', phoneNumber);
+    sendMessages(messages, twilioPhoneNumber, phoneNumber);
 };
 
 module.exports = { sendWelcome };
