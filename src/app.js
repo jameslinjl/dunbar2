@@ -10,7 +10,7 @@ app.get('/status', (req, res) => {
   res.status(204).send('');
 });
 
-app.post('/send-reminder', (req, res) => {
+app.post('/send-reminders', (req, res) => {
   twilioIntegration.sendReminders();
   res.status(204).send('');
 });
