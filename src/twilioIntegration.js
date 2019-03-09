@@ -14,4 +14,4 @@ const sendWelcome = (name, phoneNumber) => {
   });
 };
 
-export { sendWelcome };
+module.exports = { sendWelcome };
