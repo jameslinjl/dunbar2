@@ -1,6 +1,7 @@
 const _ = require('lodash');
+const googleSpreadsheetIntegration = require('./googleSpreadsheetIntegration');
 
-const accountSid = process.env.TWILIO_ACCOUNT_SID; 
+const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
 const twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER;
 const twilioClient = require('twilio')(accountSid, authToken);
@@ -31,7 +32,28 @@ const sendWelcome = (name, phoneNumber) => {
     'Over time, we will offer a few more surprises, but for now … that’s it!',
   ];
 
-    sendMessages(messages, twilioPhoneNumber, phoneNumber);
+  sendMessages(messages, twilioPhoneNumber, phoneNumber);
 };
 
-module.exports = { sendWelcome };
+const sendReminders = () => {
+  googleSpreadsheetIntegration
+    .getThisWeeksRemindersWrapper()
+    .then(reminders => {
+      const reminder = _.last(reminders);
+      // _.map(reminders, reminder => {
+      twilioClient.messages
+        .create({
+          body: `Hey ${reminder.name}! Here's your reminder to reach out to ${
+            reminder.friendName
+          } at ${reminder.friendNumber}`,
+          from: twilioPhoneNumber,
+          to: reminder.number,
+        })
+        .then(message => {
+          console.log(message.sid);
+        });
+      // });
+    });
+};
+
+module.exports = { sendReminders, sendWelcome };
