@@ -39,7 +39,7 @@ const sendReminders = () => {
   googleSpreadsheetIntegration
     .getThisWeeksRemindersWrapper()
     .then(reminders => {
-      _.map(reminders, reminder => {
+      _.forEach(reminders, reminder => {
         console.log(reminder);
         // twilioClient.messages
         //   .create({
