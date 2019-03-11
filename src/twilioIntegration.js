@@ -40,17 +40,18 @@ const sendReminders = () => {
     .getThisWeeksRemindersWrapper()
     .then(reminders => {
       _.map(reminders, reminder => {
-        twilioClient.messages
-          .create({
-            body: `Hey ${reminder.name}! Here's your reminder to reach out to ${
-              reminder.friendName
-            } at ${reminder.friendNumber}`,
-            from: twilioPhoneNumber,
-            to: reminder.number,
-          })
-          .then(message => {
-            console.log(message.sid);
-          });
+        console.log(reminder);
+        // twilioClient.messages
+        //   .create({
+        //     body: `Hey ${reminder.name}! Here's your reminder to reach out to ${
+        //       reminder.friendName
+        //     } at ${reminder.friendNumber}`,
+        //     from: twilioPhoneNumber,
+        //     to: reminder.number,
+        //   })
+        //   .then(message => {
+        //     console.log(message.sid);
+        //   });
       });
     });
 };
