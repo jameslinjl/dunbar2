@@ -26,10 +26,9 @@ const sendWelcome = (name, phoneNumber) => {
     length: 25,
   });
   const messages = [
-    `Hi ${truncatedName}! This is Dunbar, an intelligent assistant that helps you stay in touch with friends you care about (https://hellodunbar.com).`,
-    'Thanks for signing up to see what parts of this project works for you and how we can make it better.',
-    "Here's how it works: every Sunday, Dunbar sends you a friend and their contact info. Later in the week, we will reach out to see if you were able to connect.",
-    'Over time, we will offer a few more surprises, but for now … that’s it!',
+    `Hi ${truncatedName}! Dunbar here to help you stay in touch with the people who matter (https://hellodunbar.com).`,
+    "Here's how this works: Every week, we will remind you to connect with someone and later on, we will check in to see how it's going (rinse, and repeat).",
+    "Over time, we will offer a few more surprises, but for now... that's it. Talk soon!",
   ];
 
   sendMessages(messages, twilioPhoneNumber, phoneNumber);
