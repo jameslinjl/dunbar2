@@ -19,7 +19,7 @@ app.post('/send-welcome', (req, res) => {
   const body = req.body;
 
   twilioIntegration.sendWelcome(
-    body['your full name'][0],
+    body['your first name'][0],
     body['your phone number (no spaces)'][0]
   );
 
