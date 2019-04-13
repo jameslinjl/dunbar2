@@ -17,6 +17,15 @@ async function get1000Users() {
   };
 }
 
+async function getReminderMessage() {
+  const response = await axios.get(
+    'https://sheets.googleapis.com/v4/spreadsheets/1wLmGJI3-yDhFzaTpmTJuPMBrYShYEb9IdAVJVOYmY-U/values/text%20scripts%20db!C2:C2?key=' +
+      googleSheetApiKey
+  );
+
+  return _.get(response, 'data.values[0][0]', undefined);
+}
+
 const KEY_CONSTANTS = {
   TIMESTAMP: 0,
   YOUR_NAME: 1,
@@ -57,6 +66,8 @@ async function getThisWeeksReminders() {
   const numberKeyIndex = mod3SheetColumnIndexMapping[weekMod3]['number'];
   const numberKey = keys[numberKeyIndex];
 
+  const messageTemplate = await getReminderMessage();
+
   const enabledUsers = _.filter(users, 'enabled');
 
   return _.map(enabledUsers, user => {
@@ -65,6 +76,7 @@ async function getThisWeeksReminders() {
       number: user[keys[KEY_CONSTANTS.YOUR_NUMBER]],
       friendName: user[nameKey],
       friendNumber: user[numberKey],
+      messageTemplate,
     };
   });
 }

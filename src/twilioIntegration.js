@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const Handlebars = require('handlebars');
 const googleSpreadsheetIntegration = require('./googleSpreadsheetIntegration');
 
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
@@ -39,11 +40,11 @@ const sendReminders = () => {
     .getThisWeeksRemindersWrapper()
     .then(reminders => {
       _.forEach(reminders, reminder => {
+        const template = Handlebars.compile(reminder.messageTemplate);
+        const body = template(reminder);
         twilioClient.messages
           .create({
-            body: `Hey ${reminder.name}! Here's your reminder to reach out to ${
-              reminder.friendName
-            } at ${reminder.friendNumber}`,
+            body,
             from: twilioPhoneNumber,
             to: reminder.number,
           })
