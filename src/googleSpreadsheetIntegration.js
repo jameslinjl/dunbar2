@@ -3,53 +3,66 @@ const axios = require('axios');
 const moment = require('moment');
 
 const googleSheetBaseUrl =
-  'https://sheets.googleapis.com/v4/spreadsheets/1wLmGJI3-yDhFzaTpmTJuPMBrYShYEb9IdAVJVOYmY-U/values/Form%20Responses%201!A1:Z100?key=';
+  'https://sheets.googleapis.com/v4/spreadsheets/1wLmGJI3-yDhFzaTpmTJuPMBrYShYEb9IdAVJVOYmY-U/values/Form%20Responses%201!A1:Z1000?key=';
 const googleSheetApiKey = process.env.GOOGLE_SHEET_API_KEY;
 
-// this maps the mod-3 result to the index of the column in the google sheet
-const mod3SheetColumnIndexMapping = {
-  0: {
-    name: 3,
-    number: 4,
-  },
-  1: {
-    name: 5,
-    number: 6,
-  },
-  2: {
-    name: 7,
-    number: 8,
-  },
-};
-
-async function get100Users() {
+async function get1000Users() {
   const response = await axios.get(googleSheetBaseUrl + googleSheetApiKey);
   const keys = _.head(response.data.values);
   const arrOfValues = _.slice(response.data.values, 1);
 
-  return _.map(arrOfValues, values => {
-    const obj = {};
-    for (let i = 0; i < keys.length; i++) {
-      obj[keys[i]] = values[i];
-    }
-    return obj;
-  });
+  return {
+    keys,
+    users: _.map(arrOfValues, values => _.zipObject(keys, values)),
+  };
 }
+
+const KEY_CONSTANTS = {
+  TIMESTAMP: 0,
+  YOUR_NAME: 1,
+  YOUR_NUMBER: 2,
+  FIRST_FRIEND_NAME: 3,
+  FIRST_FRIEND_NUMBER: 4,
+  SECOND_FRIEND_NAME: 5,
+  SECOND_FRIEND_NUMBER: 6,
+  THIRD_FRIEND_NAME: 7,
+  THIRD_FRIEND_NUMBER: 8,
+  ENABLED: 9,
+  FOURTH_FRIEND_NAME: 10,
+  FOURTH_FRIEND_NUMBER: 11,
+};
+
+// this maps the mod-3 result to the index of the column in the google sheet
+const mod3SheetColumnIndexMapping = {
+  0: {
+    name: KEY_CONSTANTS.FIRST_FRIEND_NAME,
+    number: KEY_CONSTANTS.FIRST_FRIEND_NUMBER,
+  },
+  1: {
+    name: KEY_CONSTANTS.SECOND_FRIEND_NAME,
+    number: KEY_CONSTANTS.SECOND_FRIEND_NUMBER,
+  },
+  2: {
+    name: KEY_CONSTANTS.THIRD_FRIEND_NAME,
+    number: KEY_CONSTANTS.THIRD_FRIEND_NUMBER,
+  },
+};
 
 async function getThisWeeksReminders() {
   const weekMod3 = moment().week() % 3;
-  const users = await get100Users();
+  const { keys, users } = await get1000Users();
 
-  const keys = _.keys(users[0]);
   const nameKeyIndex = mod3SheetColumnIndexMapping[weekMod3]['name'];
   const nameKey = keys[nameKeyIndex];
   const numberKeyIndex = mod3SheetColumnIndexMapping[weekMod3]['number'];
   const numberKey = keys[numberKeyIndex];
 
-  return _.map(users, user => {
+  const enabledUsers = _.filter(users, 'enabled');
+
+  return _.map(enabledUsers, user => {
     return {
-      name: user['your full name'],
-      number: user['your phone number (no spaces)'],
+      name: user[keys[KEY_CONSTANTS.YOUR_NAME]],
+      number: user[keys[KEY_CONSTANTS.YOUR_NUMBER]],
       friendName: user[nameKey],
       friendNumber: user[numberKey],
     };
