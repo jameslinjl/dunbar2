@@ -55,4 +55,4 @@ const sendReminders = () => {
     });
 };
 
-module.exports = { sendReminders, sendWelcome };
+module.exports = { sendMessage, sendReminders, sendWelcome };

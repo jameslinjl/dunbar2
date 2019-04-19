@@ -2,6 +2,8 @@ const bodyParser = require('body-parser');
 const express = require('express');
 const twilioIntegration = require('./twilioIntegration');
 
+const twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER;
+
 const app = express();
 
 app.use(bodyParser.json());
@@ -22,6 +24,14 @@ app.post('/send-welcome', (req, res) => {
     body['your first name'][0],
     body['your phone number (no spaces)'][0]
   );
+
+  res.status(204).send('');
+});
+
+app.post('/send-as-dunbar', (req, res) => {
+  const body = req.body;
+
+  twilioIntegration.sendMessage(body.message, twilioPhoneNumber, body.number);
 
   res.status(204).send('');
 });
