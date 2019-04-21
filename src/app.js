@@ -7,6 +7,12 @@ const twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER;
 const app = express();
 
 app.use(bodyParser.json());
+app.use(
+  bodyParser.urlencoded({
+    // to support URL-encoded bodies
+    extended: true,
+  })
+);
 
 app.post('/debug', (req, res) => {
   console.log(req.body);
