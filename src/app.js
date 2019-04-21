@@ -60,8 +60,8 @@ app.post('/send-as-dunbar-slack', (req, res) => {
   const number = splitArgs[0];
 
   const message = _.join(_.slice(splitArgs, 1), ' ');
-  console.log(number);
-  console.log(message);
+
+  twilioIntegration.sendMessage(message, twilioPhoneNumber, number);
 
   res.status(200).send('');
 });
