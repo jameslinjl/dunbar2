@@ -63,7 +63,10 @@ app.post('/send-as-dunbar-slack', (req, res) => {
 
   twilioIntegration.sendMessage(message, twilioPhoneNumber, number);
 
-  res.status(200).send(`Sent "${message}" to ${number}`);
+  res.status(200).json({
+    response_type: 'in_channel',
+    text: `Sent "${message}" to ${number}`,
+  });
 });
 
 app.get('/', (req, res) => {
