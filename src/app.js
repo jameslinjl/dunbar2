@@ -1,3 +1,4 @@
+const _ = require('lodash');
 const bodyParser = require('body-parser');
 const express = require('express');
 const twilioIntegration = require('./twilioIntegration');
@@ -19,8 +20,8 @@ app.post('/debug', (req, res) => {
   res.status(200).send('');
 });
 
-app.get('/status', (req, res) => {
-  res.status(204).send('');
+app.all('/status', (req, res) => {
+  res.status(200).send('');
 });
 
 app.post('/send-reminders', (req, res) => {
@@ -50,6 +51,19 @@ app.post('/send-as-dunbar', (req, res) => {
   twilioIntegration.sendMessage(body.message, twilioPhoneNumber, body.number);
 
   res.status(204).send('');
+});
+
+app.post('/send-as-dunbar-slack', (req, res) => {
+  const args = req.body.text;
+
+  const splitArgs = _.split(args, ' ');
+  const number = splitArgs[0];
+
+  const message = _.join(_.slice(splitArgs, 1), ' ');
+  console.log(number);
+  console.log(message);
+
+  res.status(200).send('');
 });
 
 app.get('/', (req, res) => {
