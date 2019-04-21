@@ -8,6 +8,11 @@ const app = express();
 
 app.use(bodyParser.json());
 
+app.post('/debug', (req, res) => {
+  console.log(req.body);
+  res.status(200).send('');
+});
+
 app.get('/status', (req, res) => {
   res.status(204).send('');
 });
