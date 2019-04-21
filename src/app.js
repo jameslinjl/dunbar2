@@ -17,6 +17,11 @@ app.post('/send-reminders', (req, res) => {
   res.status(204).send('');
 });
 
+app.post('/send-follow-ups', (req, res) => {
+  twilioIntegration.sendFollowUps();
+  res.status(204).send('');
+});
+
 app.post('/send-welcome', (req, res) => {
   const body = req.body;
 

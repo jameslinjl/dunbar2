@@ -35,13 +35,17 @@ const sendWelcome = (name, phoneNumber) => {
   sendMessages(messages, twilioPhoneNumber, phoneNumber);
 };
 
+const templateBody = (template, placeholders) => {
+  const compiledTemplate = Handlebars.compile(template);
+  return compiledTemplate(placeholders);
+};
+
 const sendReminders = () => {
   googleSpreadsheetIntegration
     .getThisWeeksRemindersWrapper()
     .then(reminders => {
       _.forEach(reminders, reminder => {
-        const template = Handlebars.compile(reminder.messageTemplate);
-        const body = template(reminder);
+        const body = templateBody(reminder.messageTemplate, reminder);
         twilioClient.messages
           .create({
             body,
@@ -55,4 +59,18 @@ const sendReminders = () => {
     });
 };
 
-module.exports = { sendMessage, sendReminders, sendWelcome };
+const sendFollowUps = () => {
+  googleSpreadsheetIntegration
+    .getThisWeeksFollowUpsWrapper()
+    .then(followUps => {
+      _.forEach(followUps, followUp => {
+        const bodies = _.map(followUp.messageTemplates, messageTemplate =>
+          templateBody(messageTemplate, followUp)
+        );
+
+        sendMessages(bodies, twilioPhoneNumber, followUp.number);
+      });
+    });
+};
+
+module.exports = { sendFollowUps, sendMessage, sendReminders, sendWelcome };

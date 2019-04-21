@@ -26,6 +26,15 @@ async function getReminderMessage() {
   return _.get(response, 'data.values[0][0]', undefined);
 }
 
+async function getFollowUpMessages() {
+  const response = await axios.get(
+    'https://sheets.googleapis.com/v4/spreadsheets/1wLmGJI3-yDhFzaTpmTJuPMBrYShYEb9IdAVJVOYmY-U/values/text%20scripts%20db!D2:D3?key=' +
+      googleSheetApiKey
+  );
+
+  return _.flatten(_.get(response, 'data.values', undefined));
+}
+
 const KEY_CONSTANTS = {
   TIMESTAMP: 0,
   YOUR_NAME: 1,
@@ -85,6 +94,39 @@ const getThisWeeksRemindersWrapper = () => {
   return getThisWeeksReminders();
 };
 
+async function getThisWeeksFollowUps() {
+  const previousWeekMod3 =
+    moment()
+      .subtract(1, 'weeks')
+      .week() % 3;
+  const { keys, users } = await get1000Users();
+
+  const nameKeyIndex = mod3SheetColumnIndexMapping[previousWeekMod3]['name'];
+  const nameKey = keys[nameKeyIndex];
+  const numberKeyIndex =
+    mod3SheetColumnIndexMapping[previousWeekMod3]['number'];
+  const numberKey = keys[numberKeyIndex];
+
+  const messageTemplates = await getFollowUpMessages();
+
+  const enabledUsers = _.filter(users, 'enabled');
+
+  return _.map(enabledUsers, user => {
+    return {
+      name: user[keys[KEY_CONSTANTS.YOUR_NAME]],
+      number: user[keys[KEY_CONSTANTS.YOUR_NUMBER]],
+      friendName: user[nameKey],
+      friendNumber: user[numberKey],
+      messageTemplates,
+    };
+  });
+}
+
+const getThisWeeksFollowUpsWrapper = () => {
+  return getThisWeeksFollowUps();
+};
+
 module.exports = {
   getThisWeeksRemindersWrapper,
+  getThisWeeksFollowUpsWrapper,
 };
