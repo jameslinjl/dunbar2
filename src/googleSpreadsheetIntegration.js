@@ -95,10 +95,7 @@ const getThisWeeksRemindersWrapper = () => {
 };
 
 async function getThisWeeksFollowUps() {
-  const previousWeekMod3 =
-    moment()
-      .subtract(1, 'weeks')
-      .week() % 3;
+  const previousWeekMod3 = moment().week() % 3;
   const { keys, users } = await get1000Users();
 
   const nameKeyIndex = mod3SheetColumnIndexMapping[previousWeekMod3]['name'];
