@@ -2,6 +2,7 @@ const _ = require('lodash');
 const bodyParser = require('body-parser');
 const express = require('express');
 const twilioIntegration = require('./twilioIntegration');
+const googleSpreadsheetIntegration = require('./googleSpreadsheetIntegration');
 
 const twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER;
 
@@ -66,6 +67,35 @@ app.post('/send-as-dunbar-slack', (req, res) => {
   res.status(200).json({
     response_type: 'in_channel',
     text: `Sent "${message}" to ${number}`,
+  });
+});
+
+app.post('/send-to-all-as-dunbar-slack', (req, res) => {
+  const message = req.body.text;
+
+  googleSpreadsheetIntegration.get1000Users().then(result => {
+    const nameKey =
+      result.keys[googleSpreadsheetIntegration.KEY_CONSTANTS.YOUR_NAME];
+    const numberKey =
+      result.keys[googleSpreadsheetIntegration.KEY_CONSTANTS.YOUR_NUMBER];
+    const users = _.filter(result.users, 'enabled');
+
+    _.forEach(users, user => {
+      twilioIntegration
+        .sendMessage(
+          twilioIntegration.templateBody(message, { name: user[nameKey] }),
+          twilioPhoneNumber,
+          user[numberKey]
+        )
+        .then(id => {
+          console.log(id);
+        });
+    });
+  });
+
+  res.status(200).json({
+    response_type: 'in_channel',
+    text: `Sent "${message}" to all enabled users.`,
   });
 });
 

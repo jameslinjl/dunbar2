@@ -124,6 +124,8 @@ const getThisWeeksFollowUpsWrapper = () => {
 };
 
 module.exports = {
+  get1000Users,
   getThisWeeksRemindersWrapper,
   getThisWeeksFollowUpsWrapper,
+  KEY_CONSTANTS,
 };

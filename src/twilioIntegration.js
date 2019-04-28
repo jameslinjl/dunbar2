@@ -73,4 +73,10 @@ const sendFollowUps = () => {
     });
 };
 
-module.exports = { sendFollowUps, sendMessage, sendReminders, sendWelcome };
+module.exports = {
+  sendFollowUps,
+  sendMessage,
+  sendReminders,
+  sendWelcome,
+  templateBody,
+};
