@@ -1,0 +1,1 @@
+CREATE TABLE dunbar_user (id serial PRIMARY KEY, g_sheet_row_id INTEGER, current_friend_number INTEGER, created_on TIMESTAMP, last_modified TIMESTAMP);
