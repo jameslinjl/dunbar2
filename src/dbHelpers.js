@@ -16,17 +16,17 @@ const getDunbarUserByGSheetRowId = gSheetRowId => {
 const insertDunbarUser = gSheetRowId => {
   return knex(TABLE_NAME).insert({
     g_sheet_row_id: gSheetRowId,
-    current_friend_number: 1,
+    current_friend_index: 0,
     created_on: knex.fn.now(),
     last_modified: knex.fn.now(),
   });
 };
 
-const updateDunbarUserByGSheetRowId = (gSheetRowId, currentFriendNumber) => {
+const updateDunbarUserByGSheetRowId = (gSheetRowId, currentFriendIndex) => {
   return knex(TABLE_NAME)
     .where({ g_sheet_row_id: gSheetRowId })
     .update({
-      current_friend_number: currentFriendNumber,
+      current_friend_index: currentFriendIndex,
       last_modified: knex.fn.now(),
     });
 };
