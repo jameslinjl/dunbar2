@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const express = require('express');
 const twilioIntegration = require('./twilioIntegration');
 const googleSpreadsheetIntegration = require('./googleSpreadsheetIntegration');
+const dbHelpers = require('./dbHelpers');
 
 const twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER;
 
@@ -96,6 +97,36 @@ app.post('/send-to-all-as-dunbar-slack', (req, res) => {
   res.status(200).json({
     response_type: 'in_channel',
     text: `Sent "${message}" to all enabled users.`,
+  });
+});
+
+const handleGFormWriteToDb = async (gSheetRowId, currentFriendNumber) => {
+  const rows = await dbHelpers.getDunbarUserByGSheetRowId(gSheetRowId);
+  if (_.isEmpty(rows)) {
+    return dbHelpers.insertDunbarUser(gSheetRowId);
+  } else {
+    return _.isNil(currentFriendNumber)
+      ? dbHelpers.updateDunbarUserByGSheetRowId(gSheetRowId, 1)
+      : dbHelpers.updateDunbarUserByGSheetRowId(
+          gSheetRowId,
+          currentFriendNumber
+        );
+  }
+};
+
+app.post('/g-form-write-to-db', (req, res) => {
+  const {
+    row_id: gSheetRowId,
+    current_friend_number: currentFriendNumber,
+  } = req.body;
+
+  if (_.isNil(gSheetRowId)) {
+    return res.status(400).json({ error: 'row_id is required' });
+  }
+
+  handleGFormWriteToDb(gSheetRowId, currentFriendNumber).then(() => {
+    console.log('reach');
+    res.status(200).send('');
   });
 });
 
