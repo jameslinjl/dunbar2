@@ -124,10 +124,13 @@ app.post('/g-form-write-to-db', (req, res) => {
     return res.status(400).json({ error: 'row_id is required' });
   }
 
-  handleGFormWriteToDb(gSheetRowId, currentFriendNumber).then(() => {
-    console.log('reach');
-    res.status(200).send('');
-  });
+  handleGFormWriteToDb(gSheetRowId, currentFriendNumber)
+    .then(rows_written => {
+      res.status(200).json({ rows_written });
+    })
+    .catch(error => {
+      res.status(500).json({ error });
+    });
 });
 
 app.get('/', (req, res) => {
