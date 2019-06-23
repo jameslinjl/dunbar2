@@ -16,6 +16,10 @@ async function sendMessage(body, from, to) {
   console.log(message.sid);
 }
 
+async function sendMessageAsDunbar(body, to) {
+  sendMessage(body, twilioPhoneNumber, to);
+}
+
 async function sendMessages(messages, from, to) {
   for (const message of messages) {
     await sendMessage(message, from, to);
@@ -38,6 +42,24 @@ const sendWelcome = (name, phoneNumber) => {
 const templateBody = (template, placeholders) => {
   const compiledTemplate = Handlebars.compile(template);
   return compiledTemplate(placeholders);
+};
+
+const sendReminder = (reminder, number, templateParams, cb = () => {}) => {
+  const body = templateBody(reminder, templateParams);
+  twilioClient.messages
+    .create({
+      body,
+      from: twilioPhoneNumber,
+      to: number,
+    })
+    .then(message => {
+      console.log(`success sending reminder to ${number} (${message.sid})`);
+      cb();
+    })
+    .catch(error => {
+      console.error(`error sending message to ${number}`);
+      console.error(error);
+    });
 };
 
 const sendReminders = () => {
@@ -79,4 +101,7 @@ module.exports = {
   sendReminders,
   sendWelcome,
   templateBody,
+  sendReminder,
+  templateBody,
+  sendMessageAsDunbar,
 };

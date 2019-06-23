@@ -4,23 +4,10 @@ const moment = require('moment');
 
 const googleSheetBaseUrl =
   'https://sheets.googleapis.com/v4/spreadsheets/1wLmGJI3-yDhFzaTpmTJuPMBrYShYEb9IdAVJVOYmY-U/values/Form%20Responses%201!A1:Z1000?key=';
-const googleSheetV2BaseUrl =
-  'https://sheets.googleapis.com/v4/spreadsheets/1rsd2eqWOQIZArwlywnAotnkbPxK4AYUs9y3Zviud0QQ/values/master%20db!A1:Z1000?key=';
 const googleSheetApiKey = process.env.GOOGLE_SHEET_API_KEY;
 
 async function get1000Users() {
   const response = await axios.get(googleSheetBaseUrl + googleSheetApiKey);
-  const keys = _.head(response.data.values);
-  const arrOfValues = _.slice(response.data.values, 1);
-
-  return {
-    keys,
-    users: _.map(arrOfValues, values => _.zipObject(keys, values)),
-  };
-}
-
-async function get1000UsersV2() {
-  const response = await axios.get(googleSheetV2BaseUrl + googleSheetApiKey);
   const keys = _.head(response.data.values);
   const arrOfValues = _.slice(response.data.values, 1);
 
@@ -145,5 +132,5 @@ module.exports = {
   getThisWeeksFollowUpsWrapper,
   KEY_CONSTANTS,
   getReminderMessage,
-  get1000UsersV2,
+  getFollowUpMessages,
 };

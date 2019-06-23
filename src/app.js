@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const express = require('express');
 const twilioIntegration = require('./twilioIntegration');
 const googleSpreadsheetIntegration = require('./googleSpreadsheetIntegration');
+const gSheetHelpers = require('./gSheetHelpers');
 const dbHelpers = require('./dbHelpers');
 
 const twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER;
@@ -31,30 +32,114 @@ app.post('/send-reminders', (req, res) => {
   res.status(204).send('');
 });
 
+const getEnabledUsers = async () => {
+  const users = await gSheetHelpers.getUsers();
+  return _.filter(users, user => !_.isEmpty(user.userData.enabled));
+};
+
 const handleSendRemindersV2 = async () => {
   const reminderMessage = await googleSpreadsheetIntegration.getReminderMessage();
-  console.log(reminderMessage);
-  const users = await googleSpreadsheetIntegration.get1000UsersV2();
-  console.log(users);
+  const enabledUsers = await getEnabledUsers();
+
+  _.forEach(enabledUsers, async user => {
+    const {
+      friends,
+      userData: { userPhone, userName },
+      rowId,
+    } = user;
+    const dbData = await dbHelpers.getDunbarUserByGSheetRowId(rowId);
+    const { current_friend_index } = _.head(dbData);
+
+    if (_.isNil(current_friend_index)) {
+      console.error(`${rowId} is NOT in the postgresql db`);
+      return;
+    }
+
+    const friendCount = _.size(friends);
+    if (current_friend_index >= friendCount) {
+      dbHelpers.updateDunbarUserByGSheetRowId(rowId, 0);
+    } else {
+      const friendToMessage = friends[current_friend_index];
+      twilioIntegration.sendReminder(
+        // TODO: remove this once we go live
+        `DSS Test: ${reminderMessage}`,
+        userPhone,
+        {
+          name: userName,
+          friendName: friendToMessage.name,
+          friendNumber: friendToMessage.phone,
+        },
+        () => {
+          const newFriendIndex =
+            current_friend_index + 1 >= friendCount
+              ? 0
+              : current_friend_index + 1;
+          dbHelpers
+            .updateDunbarUserByGSheetRowId(rowId, newFriendIndex)
+            .then(() =>
+              console.log(`update ${rowId} to index ${newFriendIndex}`)
+            );
+        }
+      );
+    }
+  });
 };
 
 app.post('/send-reminders-v2', (req, res) => {
   handleSendRemindersV2().then(() => {
-    console.log('success!');
+    console.log('successfully sent all reminders!');
   });
   // don't wait for the promise to resolve to send the response so that we don't time out on a long operation
   res.status(204).send('');
 });
 
-// send-reminders-v2
-// get users from gsheet
-// for each (enabled) user:
-//  get user data from pg
-//  send reminder to appropriate friend
-//  on successful reminder, update which friend to remind (need to compute total friends)
-
 app.post('/send-follow-ups', (req, res) => {
   twilioIntegration.sendFollowUps();
+  res.status(204).send('');
+});
+
+const handleSendFollowUpsV2 = async () => {
+  const followUpMessages = await googleSpreadsheetIntegration.getFollowUpMessages();
+  const enabledUsers = await getEnabledUsers();
+
+  _.forEach(enabledUsers, async user => {
+    const {
+      friends,
+      userData: { userPhone, userName },
+      rowId,
+    } = user;
+    const dbData = await dbHelpers.getDunbarUserByGSheetRowId(rowId);
+    const { current_friend_index } = _.head(dbData);
+
+    if (_.isNil(current_friend_index)) {
+      console.error(`${rowId} is NOT in the postgresql db`);
+      return;
+    }
+
+    const followUpFriendIndex =
+      current_friend_index === 0
+        ? _.size(friends) - 1
+        : current_friend_index - 1;
+    const friendToFollowUp = friends[followUpFriendIndex];
+
+    _.forEach(followUpMessages, async followUpMessage => {
+      const message = twilioIntegration.templateBody(followUpMessage, {
+        name: userName,
+        friendName: friendToFollowUp.name,
+        friendNumber: friendToFollowUp.phone,
+      });
+      // make this blocking so that we can ensure message order
+      await twilioIntegration
+        .sendMessageAsDunbar(`DSS Test: ${message}`, userPhone)
+        .then(() => console.log(`sent follow-up to ${userPhone}`));
+    });
+  });
+};
+
+app.post('/send-follow-ups-v2', (req, res) => {
+  handleSendFollowUpsV2().then(() => {
+    console.log('successfully sent all follow ups!');
+  });
   res.status(204).send('');
 });
 
@@ -128,7 +213,7 @@ const handleGFormWriteToDb = async (gSheetRowId, currentFriendIndex) => {
     return dbHelpers.insertDunbarUser(gSheetRowId);
   } else {
     return _.isNil(currentFriendIndex)
-      ? dbHelpers.updateDunbarUserByGSheetRowId(gSheetRowId, 1)
+      ? dbHelpers.updateDunbarUserByGSheetRowId(gSheetRowId, 0)
       : dbHelpers.updateDunbarUserByGSheetRowId(
           gSheetRowId,
           currentFriendIndex
