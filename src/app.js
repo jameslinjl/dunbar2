@@ -147,8 +147,8 @@ app.post('/send-welcome', (req, res) => {
   const body = req.body;
 
   twilioIntegration.sendWelcome(
-    body['your first name'][0],
-    body['your phone number (no spaces)'][0]
+    body['👤 Your first name'][0],
+    body['📱 Your phone number'][0]
   );
 
   res.status(204).send('');
