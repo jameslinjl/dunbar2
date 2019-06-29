@@ -145,12 +145,12 @@ app.post('/send-follow-ups-v2', (req, res) => {
 
 app.post('/send-welcome', (req, res) => {
   const body = req.body;
+  const nameKey = '👤 Your first name';
+  const phoneKey = '📱 Your phone number';
 
-  console.log(body);
-  twilioIntegration.sendWelcome(
-    body['👤 Your first name'][0],
-    body['📱 Your phone number'][0]
-  );
+  if (_.every([nameKey, phoneKey], key => _.get(body, key, false))) {
+    twilioIntegration.sendWelcome(body['👤 Your first name'][0], body[''][0]);
+  }
 
   res.status(204).send('');
 });
