@@ -148,8 +148,9 @@ app.post('/send-welcome', (req, res) => {
   const nameKey = '👤 Your first name';
   const phoneKey = '📱 Your phone number';
 
+  console.log(body);
   if (_.every([nameKey, phoneKey], key => _.get(body, key, false))) {
-    twilioIntegration.sendWelcome(body['👤 Your first name'][0], body[''][0]);
+    twilioIntegration.sendWelcome(body[nameKey][0], body[phoneKey][0]);
   }
 
   res.status(204).send('');
