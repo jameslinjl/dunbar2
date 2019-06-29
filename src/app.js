@@ -146,6 +146,7 @@ app.post('/send-follow-ups-v2', (req, res) => {
 app.post('/send-welcome', (req, res) => {
   const body = req.body;
 
+  console.log(body);
   twilioIntegration.sendWelcome(
     body['👤 Your first name'][0],
     body['📱 Your phone number'][0]
