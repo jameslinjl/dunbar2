@@ -62,7 +62,7 @@ const handleSendRemindersV2 = async () => {
       const friendToMessage = friends[current_friend_index];
       twilioIntegration.sendReminder(
         // TODO: remove this once we go live
-        `Oslo: ${reminderMessage}`,
+        `oslo: ${reminderMessage}`,
         userPhone,
         {
           name: userName,
