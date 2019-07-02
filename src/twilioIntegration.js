@@ -31,9 +31,8 @@ const sendWelcome = (name, phoneNumber) => {
     length: 25,
   });
   const messages = [
-    `Hi ${truncatedName}! Dunbar here to help you stay in touch with the people who matter (https://hellodunbar.com).`,
-    "Here's how this works: Every week, we will remind you to connect with someone and later on, we will check in to see how it's going (rinse, and repeat).",
-    "Over time, we will offer a few more surprises, but for now... that's it. Talk soon!",
+    `Hi ${truncatedName}! 👋 Welcome to Oslo––where we make it easy to stay in touch with the people who matter!`,
+    'Add us to your contacts and we will take care of the rest.',
   ];
 
   sendMessages(messages, twilioPhoneNumber, phoneNumber);
