@@ -130,7 +130,7 @@ const handleSendFollowUpsV2 = async () => {
       });
       // make this blocking so that we can ensure message order
       await twilioIntegration
-        .sendMessageAsDunbar(`DSS Test: ${message}`, userPhone)
+        .sendMessageAsDunbar(`oslo: ${message}`, userPhone)
         .then(() => console.log(`sent follow-up to ${userPhone}`));
     });
   });
