@@ -62,7 +62,7 @@ const handleSendRemindersV2 = async () => {
       const friendToMessage = friends[current_friend_index];
       twilioIntegration.sendReminder(
         // TODO: remove this once we go live
-        `oslo: ${reminderMessage}`,
+        reminderMessage,
         userPhone,
         {
           name: userName,
@@ -130,7 +130,7 @@ const handleSendFollowUpsV2 = async () => {
       });
       // make this blocking so that we can ensure message order
       await twilioIntegration
-        .sendMessageAsDunbar(`oslo: ${message}`, userPhone)
+        .sendMessageAsDunbar(message, userPhone)
         .then(() => console.log(`sent follow-up to ${userPhone}`));
     });
   });
